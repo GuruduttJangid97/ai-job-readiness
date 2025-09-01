@@ -1,70 +1,166 @@
-# Getting Started with Create React App
+# 🎨 AI Job Readiness Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern React frontend application for the AI Job Readiness platform, providing an intuitive user interface for resume analysis, job readiness assessment, and progress tracking.
 
-## Available Scripts
+## 🎯 Overview
 
-In the project directory, you can run:
+The AI Job Readiness Frontend is a modern React application that provides:
 
-### `npm start`
+- **User Interface**: Clean, responsive design for all user interactions
+- **File Upload**: Drag-and-drop resume upload with progress tracking
+- **Dashboard**: Comprehensive analytics and progress visualization
+- **Real-time Updates**: Live data updates and notifications
+- **Mobile Support**: Fully responsive design for all devices
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## ✨ Features
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 🔐 User Management
+- User registration and login
+- Profile management
+- Password reset functionality
+- Session management
 
-### `npm test`
+### 📄 Resume Management
+- Drag-and-drop file upload
+- Multiple file format support (PDF, DOC, DOCX)
+- Resume preview and editing
+- Version history and management
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 📊 Analytics Dashboard
+- Job readiness scoring visualization
+- Progress tracking over time
+- Skills gap analysis
+- Detailed reports and insights
 
-### `npm run build`
+## 🛠️ Tech Stack
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **Framework**: React 18
+- **Build Tool**: Create React App
+- **Styling**: CSS3 with modern features
+- **HTTP Client**: Axios
+- **State Management**: React Hooks
+- **Routing**: React Router
+- **Icons**: React Icons
+- **Charts**: Chart.js / Recharts
+- **File Upload**: React Dropzone
+- **Notifications**: React Toastify
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 🚀 Getting Started
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Prerequisites
 
-### `npm run eject`
+- Node.js 18+
+- npm or yarn
+- Backend API running (see backend README)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Installation
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-org/ai-job-readiness.git
+   cd ai-job-readiness/frontend
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+3. **Start the development server**
+   ```bash
+   npm start
+   ```
 
-## Learn More
+4. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 💻 Development
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Available Scripts
 
-### Code Splitting
+- `npm start` - Runs the app in development mode
+- `npm test` - Launches the test runner
+- `npm run build` - Builds the app for production
+- `npm run eject` - Ejects from Create React App (one-way operation)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Development Workflow
 
-### Analyzing the Bundle Size
+1. Create a feature branch
+2. Make your changes following existing patterns
+3. Test your changes with `npm test`
+4. Build and test production build
+5. Commit and push your changes
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🧩 Components
 
-### Making a Progressive Web App
+The application is built with reusable components:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- **Common Components**: Button, Input, Modal, Loading
+- **Layout Components**: Header, Sidebar, Footer
+- **Form Components**: LoginForm, RegisterForm, ProfileForm
+- **Page Components**: Dashboard, Login, Register, Profile, Resumes, Analysis
 
-### Advanced Configuration
+## 🔌 API Integration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The frontend integrates with the backend API using:
 
-### Deployment
+- **Axios**: HTTP client for API requests
+- **Interceptors**: Automatic token handling and error management
+- **Custom Hooks**: useAuth, useApi for state management
+- **Context Providers**: AuthContext, ThemeContext
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## 🎨 Styling
 
-### `npm run build` fails to minify
+- **CSS Architecture**: Modular approach with global, component, and theme styles
+- **Theme System**: Light/dark theme support with CSS variables
+- **Responsive Design**: Mobile-first approach with breakpoints
+- **Component Styles**: Scoped styles for individual components
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 🧪 Testing
+
+- **Unit Tests**: Test individual components and functions
+- **Integration Tests**: Test component interactions
+- **Testing Library**: React Testing Library for component testing
+- **Coverage Reports**: Generate test coverage reports
+
+## 🚀 Build & Deployment
+
+### Production Build
+```bash
+npm run build
+```
+
+### Environment Variables
+- `REACT_APP_API_URL`: Backend API URL
+- `REACT_APP_ENVIRONMENT`: Environment (dev/staging/prod)
+- `REACT_APP_VERSION`: App version
+
+### Deployment Options
+- Static hosting (Netlify, Vercel)
+- Docker deployment
+- Nginx deployment
+
+## 📱 Progressive Web App (PWA)
+
+The application includes PWA capabilities:
+- Service Worker for offline functionality
+- Web App Manifest for app-like experience
+- Responsive design for all devices
+- Fast loading with optimized performance
+
+## 🤝 Contributing
+
+1. Follow existing code structure and patterns
+2. Use functional components with hooks
+3. Add tests for new functionality
+4. Ensure responsive design
+5. Follow accessibility guidelines
+6. Update documentation as needed
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
+
+---
+
+**Built with ❤️ using React**
