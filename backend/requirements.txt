@@ -1,2 +1,11 @@
 fastapi
+fastapi-users[sqlalchemy]
 uvicorn[standard]
+sqlalchemy
+alembic
+psycopg2-binary
+python-multipart
+pytest
+pytest-asyncio
+asyncpg
+python-dotenv
