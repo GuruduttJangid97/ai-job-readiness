@@ -1,4 +1,7 @@
 import pytest
+import pytest_asyncio
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 import uuid
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -7,7 +10,7 @@ from app.db.database import Base
 from app.models import User, Role, UserRole, Resume, Score
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def engine():
     """Create a test database engine"""
     # Use in-memory SQLite for testing
@@ -25,7 +28,7 @@ async def engine():
     await engine.dispose()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def session(engine):
     """Create a test database session"""
     async_session = sessionmaker(
@@ -127,10 +130,20 @@ class TestUserModel:
         await session.commit()
         await session.refresh(user)
         
-        # Test that relationships are empty initially
-        assert len(user.roles) == 0
-        assert len(user.resumes) == 0
-        assert len(user.scores) == 0
+        # Re-query with eager loading to avoid async lazy-load
+        result = await session.execute(
+            select(User)
+            .options(
+                selectinload(User.roles),
+                selectinload(User.resumes),
+                selectinload(User.scores),
+            )
+            .where(User.id == user.id)
+        )
+        user_loaded = result.scalar_one()
+        assert len(user_loaded.roles) == 0
+        assert len(user_loaded.resumes) == 0
+        assert len(user_loaded.scores) == 0
 
 
 class TestRoleModel:
@@ -214,17 +227,23 @@ class TestResumeModel:
         """Test resume-user relationship"""
         # Create user and resume
         user = User(**sample_user_data)
+        session.add(user)
+        await session.flush()
         resume_data = {**sample_resume_data, "user_id": user.id}
         resume = Resume(**resume_data)
-        session.add_all([user, resume])
+        session.add(resume)
         await session.commit()
         await session.refresh(user)
         await session.refresh(resume)
         
-        # Test relationships
+        # Test relationships (reload with eager loading)
+        result = await session.execute(
+            select(User).options(selectinload(User.resumes)).where(User.id == user.id)
+        )
+        user_loaded = result.scalar_one()
         assert resume.user.id == user.id
-        assert len(user.resumes) == 1
-        assert user.resumes[0].id == resume.id
+        assert len(user_loaded.resumes) == 1
+        assert user_loaded.resumes[0].id == resume.id
 
 
 class TestScoreModel:
@@ -235,9 +254,11 @@ class TestScoreModel:
         """Test creating a score"""
         # Create user and resume first
         user = User(**sample_user_data)
+        session.add(user)
+        await session.flush()
         resume_data = {**sample_resume_data, "user_id": user.id}
         resume = Resume(**resume_data)
-        session.add_all([user, resume])
+        session.add(resume)
         await session.commit()
         await session.refresh(user)
         await session.refresh(resume)
@@ -262,23 +283,35 @@ class TestScoreModel:
         """Test score relationships"""
         # Create user, resume, and score
         user = User(**sample_user_data)
+        session.add(user)
+        await session.flush()
         resume_data = {**sample_resume_data, "user_id": user.id}
         resume = Resume(**resume_data)
+        session.add(resume)
+        await session.flush()
         score_data = {**sample_score_data, "user_id": user.id, "resume_id": resume.id}
         score = Score(**score_data)
-        session.add_all([user, resume, score])
+        session.add(score)
         await session.commit()
         await session.refresh(user)
         await session.refresh(resume)
         await session.refresh(score)
         
-        # Test relationships
+        # Test relationships (reload with eager loading)
+        result_user = await session.execute(
+            select(User).options(selectinload(User.scores)).where(User.id == user.id)
+        )
+        user_loaded = result_user.scalar_one()
+        result_resume = await session.execute(
+            select(Resume).options(selectinload(Resume.scores)).where(Resume.id == resume.id)
+        )
+        resume_loaded = result_resume.scalar_one()
         assert score.user.id == user.id
         assert score.resume.id == resume.id
-        assert len(user.scores) == 1
-        assert len(resume.scores) == 1
-        assert user.scores[0].id == score.id
-        assert resume.scores[0].id == score.id
+        assert len(user_loaded.scores) == 1
+        assert len(resume_loaded.scores) == 1
+        assert user_loaded.scores[0].id == score.id
+        assert resume_loaded.scores[0].id == score.id
 
 
 class TestModelRelationships:
@@ -289,11 +322,15 @@ class TestModelRelationships:
         """Test cascade delete functionality"""
         # Create user, resume, and score
         user = User(**sample_user_data)
+        session.add(user)
+        await session.flush()
         resume_data = {**sample_resume_data, "user_id": user.id}
         resume = Resume(**resume_data)
+        session.add(resume)
+        await session.flush()
         score_data = {**sample_score_data, "user_id": user.id, "resume_id": resume.id}
         score = Score(**score_data)
-        session.add_all([user, resume, score])
+        session.add(score)
         await session.commit()
         
         # Verify all records exist
