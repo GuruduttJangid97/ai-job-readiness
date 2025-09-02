@@ -108,15 +108,25 @@ def get_engine() -> AsyncEngine:
         database_url = get_database_url()
         
         # Create async engine with optimized settings
-        _engine = create_async_engine(
-            database_url,
-            echo=os.getenv("SQL_ECHO", "true").lower() == "true",  # SQL query logging
-            future=True,  # Use SQLAlchemy 2.0 style
-            pool_size=10,  # Connection pool size
-            max_overflow=20,  # Maximum overflow connections
-            pool_pre_ping=True,  # Verify connections before use
-            pool_recycle=3600,  # Recycle connections every hour
-        )
+        engine_kwargs = {
+            "echo": os.getenv("SQL_ECHO", "true").lower() == "true",
+            "future": True,
+        }
+        # SQLite (incl. aiosqlite) does not accept pool_size/max_overflow; use StaticPool for in-memory
+        if database_url.startswith("sqlite+"):
+            from sqlalchemy.pool import StaticPool
+            engine_kwargs.update({
+                "connect_args": {"check_same_thread": False},
+                "poolclass": StaticPool,
+            })
+        else:
+            engine_kwargs.update({
+                "pool_size": 10,
+                "max_overflow": 20,
+                "pool_pre_ping": True,
+                "pool_recycle": 3600,
+            })
+        _engine = create_async_engine(database_url, **engine_kwargs)
         
         logger.info("✅ Database engine created successfully")
     
