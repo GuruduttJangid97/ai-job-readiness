@@ -19,6 +19,13 @@ from typing import Dict, Any
 from app.db.database import get_db, init_db
 from app.models import User, Role, UserRole, Resume, Score
 
+# Import FastAPI-Users and authentication
+from app.core.users import fastapi_users, current_active_user
+from app.core.config import settings
+
+# Import API routers
+from app.api import auth_router, users_router
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -57,14 +64,9 @@ app = FastAPI(
 # Configure CORS middleware for frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # React development server
-        "http://localhost:3001",  # Alternative React port
-        "http://127.0.0.1:3000",  # Local development
-        "http://127.0.0.1:3001",  # Alternative local port
-    ],
+    allow_origins=settings.backend_cors_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
 )
 
@@ -295,4 +297,33 @@ async def api_info() -> Dict[str, Any]:
             "Alembic",
             "FastAPI-Users"
         ]
+    }
+
+
+# Include API routers
+app.include_router(auth_router, prefix=settings.api_v1_str)
+app.include_router(users_router, prefix=settings.api_v1_str)
+
+
+@app.get(f"{settings.api_v1_str}/protected", tags=["Authentication"])
+async def protected_route(
+    current_user: User = Depends(current_active_user),
+) -> Dict[str, Any]:
+    """
+    Protected route example.
+    
+    This endpoint demonstrates how to protect routes with authentication.
+    Only authenticated users can access this endpoint.
+    
+    Args:
+        current_user: Current authenticated user
+        
+    Returns:
+        Dict[str, Any]: Protected resource data
+    """
+    return {
+        "message": "This is a protected route",
+        "user_id": str(current_user.id),
+        "user_email": current_user.email,
+        "user_roles": [user_role.role.name for user_role in current_user.roles if user_role.role],
     }
