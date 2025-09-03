@@ -10,3 +10,8 @@ pytest-asyncio
 aiosqlite
 asyncpg
 python-dotenv
+pydantic[email]
+pydantic-settings
+python-jose[cryptography]
+passlib[bcrypt]
+email-validator
