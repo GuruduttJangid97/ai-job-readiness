@@ -25,6 +25,7 @@ from app.core.config import settings
 
 # Import API routers
 from app.api import auth_router, users_router
+from app.api.roles import router as roles_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -303,6 +304,7 @@ async def api_info() -> Dict[str, Any]:
 # Include API routers
 app.include_router(auth_router, prefix=settings.api_v1_str)
 app.include_router(users_router, prefix=settings.api_v1_str)
+app.include_router(roles_router, prefix=settings.api_v1_str)
 
 
 @app.get(f"{settings.api_v1_str}/protected", tags=["Authentication"])

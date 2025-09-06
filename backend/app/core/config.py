@@ -45,6 +45,14 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
     
+    # JWT settings (for compatibility)
+    jwt_secret: str = "supersecretkey"
+    jwt_algorithm: str = "HS256"
+    
+    # API Keys
+    openai_api_key: str = "your_openai_key"
+    coursera_api_key: str = "your_coursera_key"
+    
     # FastAPI-Users settings
     users_secret: str = "your-users-secret-change-in-production"
     verification_token_secret: str = "your-verification-secret-change-in-production"
@@ -103,6 +111,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "allow"  # Allow extra fields for backward compatibility
 
 
 # Create global settings instance

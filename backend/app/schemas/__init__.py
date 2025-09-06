@@ -18,6 +18,16 @@ from .user import (
     UserListResponse
 )
 
+from .resume import (
+    ResumeCreate,
+    ResumeUpdate,
+    ResumeRead,
+    ResumeResponse,
+    ResumeListResponse,
+    ResumeFileUpload,
+    ResumeAnalysisRequest
+)
+
 __all__ = [
     "UserCreate",
     "UserUpdate", 
@@ -25,5 +35,12 @@ __all__ = [
     "UserProfile",
     "UserProfileUpdate",
     "UserResponse",
-    "UserListResponse"
+    "UserListResponse",
+    "ResumeCreate",
+    "ResumeUpdate",
+    "ResumeRead",
+    "ResumeResponse",
+    "ResumeListResponse",
+    "ResumeFileUpload",
+    "ResumeAnalysisRequest"
 ]
