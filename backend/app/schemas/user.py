@@ -13,7 +13,7 @@ Version: 1.0.0
 
 import uuid
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, EmailStr, Field, validator
 from fastapi_users import schemas
 
@@ -122,6 +122,7 @@ class UserProfile(BaseModel):
     created_at: datetime = Field(..., description="Timestamp when the user was created")
     updated_at: Optional[datetime] = Field(None, description="Timestamp when the user was last updated")
     roles: List[str] = Field(default_factory=list, description="List of user's role names")
+    role_assignments: Optional[List[Dict[str, Any]]] = Field(default_factory=list, description="Detailed role assignment information")
     
     class Config:
         from_attributes = True

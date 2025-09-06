@@ -187,3 +187,25 @@ def generate_random_string(length: int = 32) -> str:
         str: Random string
     """
     return secrets.token_urlsafe(length)
+
+
+def get_current_user():
+    """
+    Dependency to get the current authenticated user.
+    
+    This is a placeholder function that should be implemented
+    with proper authentication logic.
+    
+    Returns:
+        User: The current authenticated user
+    """
+    # This is a placeholder implementation
+    # In a real application, this would:
+    # 1. Extract the JWT token from the request headers
+    # 2. Verify the token
+    # 3. Fetch the user from the database
+    # 4. Return the user object
+    
+    # For now, we'll return None to indicate no authentication
+    # This allows the API to work without authentication for testing
+    return None
