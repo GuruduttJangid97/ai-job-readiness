@@ -26,6 +26,7 @@ from app.core.config import settings
 # Import API routers
 from app.api import auth_router, users_router
 from app.api.roles import router as roles_router
+from app.api.resume import router as resume_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -305,11 +306,13 @@ async def api_info() -> Dict[str, Any]:
 app.include_router(auth_router, prefix=settings.api_v1_str)
 app.include_router(users_router, prefix=settings.api_v1_str)
 app.include_router(roles_router, prefix=settings.api_v1_str)
+app.include_router(resume_router, prefix=settings.api_v1_str)
 
 
 @app.get(f"{settings.api_v1_str}/protected", tags=["Authentication"])
 async def protected_route(
     current_user: User = Depends(current_active_user),
+    db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
     Protected route example.
@@ -319,13 +322,27 @@ async def protected_route(
     
     Args:
         current_user: Current authenticated user
+        db: Database session
         
     Returns:
         Dict[str, Any]: Protected resource data
     """
+    # Get user roles with proper async loading
+    from sqlalchemy import select
+    from sqlalchemy.orm import selectinload
+    from app.models.role import UserRole, Role
+    
+    # Query user with roles loaded
+    result = await db.execute(
+        select(User)
+        .options(selectinload(User.roles).selectinload(UserRole.role))
+        .where(User.id == current_user.id)
+    )
+    user_with_roles = result.scalar_one()
+    
     return {
         "message": "This is a protected route",
         "user_id": str(current_user.id),
         "user_email": current_user.email,
-        "user_roles": [user_role.role.name for user_role in current_user.roles if user_role.role],
+        "user_roles": [user_role.role.name for user_role in user_with_roles.roles if user_role.role],
     }
