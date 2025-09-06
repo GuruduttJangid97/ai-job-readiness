@@ -19,7 +19,7 @@ Version: 1.0.0
 import uuid
 from datetime import datetime
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, validator, ConfigDict
+from pydantic import BaseModel, Field, validator, field_validator, ConfigDict
 
 
 class ResumeBase(BaseModel):
@@ -228,6 +228,38 @@ class ResumeRead(ResumeBase):
     created_at: datetime = Field(..., description="Creation timestamp")
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
     needs_analysis: bool = Field(..., description="Whether the resume needs analysis")
+
+    @field_validator('skills', mode='before')
+    @classmethod
+    def parse_skills(cls, v):
+        """Parse skills from JSON string or list."""
+        if isinstance(v, str):
+            try:
+                import json
+                return json.loads(v)
+            except (json.JSONDecodeError, TypeError):
+                return []
+        return v or []
+
+    @field_validator('languages', mode='before')
+    @classmethod
+    def parse_languages(cls, v):
+        """Parse languages from JSON string or list."""
+        if isinstance(v, str):
+            try:
+                import json
+                return json.loads(v)
+            except (json.JSONDecodeError, TypeError):
+                return []
+        return v or []
+
+    @field_validator('needs_analysis', mode='before')
+    @classmethod
+    def parse_needs_analysis(cls, v):
+        """Parse needs_analysis from method or boolean."""
+        if callable(v):
+            return v()
+        return bool(v)
 
     model_config = ConfigDict(from_attributes=True)
 
