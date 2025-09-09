@@ -1,0 +1,954 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "AI Job Readiness API",
+		"description": "Comprehensive API collection for testing the AI Job Readiness Platform backend. Includes all endpoints for user management, authentication, roles, resumes, and scoring.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"version": {
+			"major": 1,
+			"minor": 0,
+			"patch": 0
+		}
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "api_version",
+			"value": "/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "resume_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "role_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Health & System",
+			"item": [
+				{
+					"name": "Root Endpoint",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/",
+							"host": ["{{base_url}}"],
+							"path": [""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Models",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/models",
+							"host": ["{{base_url}}"],
+							"path": ["models"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Database Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/database",
+							"host": ["{{base_url}}"],
+							"path": ["database"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "API Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/info",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "info"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"phone\": \"+1234567890\",\n  \"bio\": \"Software Engineer with 5 years experience\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "auth", "register"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "test@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "SecurePass123!",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/auth/jwt/login",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "auth", "jwt", "login"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "auth", "me"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/auth/jwt/logout",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "auth", "jwt", "logout"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Request Password Reset",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/auth/forgot-password",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "auth", "forgot-password"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"your_reset_token_here\",\n  \"new_password\": \"NewSecurePass123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/auth/reset-password",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "auth", "reset-password"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/users/profile",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "users", "profile"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"John Updated\",\n  \"last_name\": \"Doe Updated\",\n  \"phone\": \"+1234567891\",\n  \"bio\": \"Senior Software Engineer with 6 years experience\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/users/profile",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "users", "profile"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"current_password\": \"SecurePass123!\",\n  \"new_password\": \"NewSecurePass123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/users/change-password",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "users", "change-password"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List All Users (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/users/?page=1&size=10&search=&is_active=true",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "users", ""],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "is_active",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "users", "{{user_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Admin Updated\",\n  \"last_name\": \"User\",\n  \"is_active\": true,\n  \"is_verified\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "users", "{{user_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "users", "{{user_id}}"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Role Management",
+			"item": [
+				{
+					"name": "Create Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"moderator\",\n  \"description\": \"Moderator role with limited admin privileges\",\n  \"permissions\": [\"read\", \"write\", \"moderate\"],\n  \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/roles/",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "roles", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List All Roles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/roles/?page=1&size=10&search=&is_active=true",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "roles", ""],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "is_active",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Role by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/roles/{{role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "roles", "{{role_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Role",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"senior_moderator\",\n  \"description\": \"Senior moderator with extended privileges\",\n  \"permissions\": [\"read\", \"write\", \"moderate\", \"approve\"],\n  \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/roles/{{role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "roles", "{{role_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/roles/{{role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "roles", "{{role_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assign Role to User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"role_id\": {{role_id}},\n  \"assigned_by\": \"{{user_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/roles/assign",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "roles", "assign"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Roles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/roles/user/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "roles", "user", "{{user_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Role from User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/roles/assign/{{user_id}}/{{role_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "roles", "assign", "{{user_id}}", "{{role_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Role Permissions",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"permissions\": [\"read\", \"write\", \"moderate\", \"approve\", \"delete\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/roles/{{role_id}}/permissions",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "roles", "{{role_id}}", "permissions"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Role Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/roles/stats",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "roles", "stats"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Resume Management",
+			"item": [
+				{
+					"name": "Create Resume",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Senior Software Engineer Resume\",\n  \"summary\": \"Experienced software engineer with 5+ years in full-stack development\",\n  \"experience_years\": 5.5,\n  \"education_level\": \"Bachelor's Degree\",\n  \"skills\": [\"Python\", \"JavaScript\", \"React\", \"Node.js\", \"PostgreSQL\"],\n  \"languages\": [\n    {\"name\": \"English\", \"proficiency\": \"Native\"},\n    {\"name\": \"Spanish\", \"proficiency\": \"Intermediate\"}\n  ],\n  \"is_public\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/resumes/",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "resumes", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Resume File",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/path/to/your/resume.pdf"
+								},
+								{
+									"key": "title",
+									"value": "My Professional Resume",
+									"type": "text"
+								},
+								{
+									"key": "is_public",
+									"value": "false",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/resumes/upload",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "resumes", "upload"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List User Resumes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/resumes/?page=1&size=10&is_active=true",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "resumes", ""],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "is_active",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Resume by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/resumes/{{resume_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "resumes", "{{resume_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Resume",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Updated Senior Software Engineer Resume\",\n  \"summary\": \"Senior software engineer with 6+ years in full-stack development\",\n  \"experience_years\": 6.0,\n  \"skills\": [\"Python\", \"JavaScript\", \"React\", \"Node.js\", \"PostgreSQL\", \"Docker\", \"AWS\"],\n  \"is_public\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/resumes/{{resume_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "resumes", "{{resume_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Resume",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/resumes/{{resume_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "resumes", "{{resume_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download Resume File",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/resumes/{{resume_id}}/download",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "resumes", "{{resume_id}}", "download"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Request Resume Analysis",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"job_title\": \"Senior Software Engineer\",\n  \"company\": \"Tech Corp\",\n  \"job_description\": \"We are looking for a senior software engineer with experience in Python, React, and cloud technologies...\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/resumes/{{resume_id}}/analyze",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "resumes", "{{resume_id}}", "analyze"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Resume Analysis Results",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/resumes/{{resume_id}}/scores",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "resumes", "{{resume_id}}", "scores"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Protected Routes",
+			"item": [
+				{
+					"name": "Protected Route Example",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}{{api_version}}/protected",
+							"host": ["{{base_url}}"],
+							"path": ["{{api_version}}", "protected"]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-extract access token from login response",
+					"if (pm.response && pm.response.json() && pm.response.json().access_token) {",
+					"    pm.collectionVariables.set('access_token', pm.response.json().access_token);",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-extract IDs from responses",
+					"if (pm.response && pm.response.json()) {",
+					"    const response = pm.response.json();",
+					"    ",
+					"    // Extract user ID",
+					"    if (response.id) {",
+					"        pm.collectionVariables.set('user_id', response.id);",
+					"    }",
+					"    ",
+					"    // Extract resume ID",
+					"    if (response.data && response.data.id) {",
+					"        pm.collectionVariables.set('resume_id', response.data.id);",
+					"    }",
+					"    ",
+					"    // Extract role ID",
+					"    if (response.data && response.data.id) {",
+					"        pm.collectionVariables.set('role_id', response.data.id);",
+					"    }",
+					"}"
+				]
+			}
+		}
+	]
+}
