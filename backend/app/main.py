@@ -20,7 +20,8 @@ from app.db.database import get_db, init_db
 from app.models import User, Role, UserRole, Resume, Score
 
 # Import FastAPI-Users and authentication
-from app.core.users import fastapi_users, current_active_user
+from app.core.users import fastapi_users, current_active_user, auth_backend
+from app.schemas.user import UserRead, UserCreate, UserUpdate
 from app.core.config import settings
 
 # Import API routers
@@ -301,6 +302,33 @@ async def api_info() -> Dict[str, Any]:
         ]
     }
 
+
+# Include FastAPI-Users authentication routes
+app.include_router(
+    fastapi_users.get_auth_router(auth_backend),
+    prefix="/auth/jwt",
+    tags=["auth"]
+)
+app.include_router(
+    fastapi_users.get_register_router(UserRead, UserCreate),
+    prefix="/auth",
+    tags=["auth"]
+)
+app.include_router(
+    fastapi_users.get_reset_password_router(),
+    prefix="/auth",
+    tags=["auth"]
+)
+app.include_router(
+    fastapi_users.get_verify_router(UserRead),
+    prefix="/auth",
+    tags=["auth"]
+)
+app.include_router(
+    fastapi_users.get_users_router(UserRead, UserUpdate),
+    prefix="/users",
+    tags=["users"]
+)
 
 # Include API routers
 app.include_router(auth_router, prefix=settings.api_v1_str)

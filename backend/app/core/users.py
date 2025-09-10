@@ -24,7 +24,7 @@ from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.db.database import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate, UserRead
+from app.schemas.user import User, UserCreate, UserUpdate, UserRead
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
@@ -201,7 +201,8 @@ async def get_user_db(session: AsyncSession = Depends(get_db)):
     Yields:
         SQLAlchemyUserDatabase: User database adapter
     """
-    yield SQLAlchemyUserDatabase(session, User)
+    from app.models.user import User as UserModel
+    yield SQLAlchemyUserDatabase(session, UserModel)
 
 
 async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
@@ -241,7 +242,10 @@ auth_backend = AuthenticationBackend(
 )
 
 # Create FastAPI-Users instance
-fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
+fastapi_users = FastAPIUsers[User, uuid.UUID](
+    get_user_manager, 
+    [auth_backend]
+)
 
 # Get current user dependencies
 current_active_user = fastapi_users.current_user(active=True)

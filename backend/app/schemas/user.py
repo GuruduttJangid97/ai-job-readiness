@@ -15,7 +15,7 @@ import uuid
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, EmailStr, Field, validator
-from fastapi_users import schemas
+from fastapi_users import schemas, models
 
 
 class UserBase(BaseModel):
@@ -51,7 +51,25 @@ class UserBase(BaseModel):
         return v
 
 
-class UserCreate(UserBase, schemas.BaseUserCreate):
+class User(schemas.BaseUser[uuid.UUID], UserBase):
+    """
+    Schema for user data.
+    
+    Extends FastAPI-Users BaseUser with additional profile fields.
+    This schema is used for user data representation.
+    """
+    id: uuid.UUID = Field(..., description="User's unique identifier")
+    is_active: bool = Field(..., description="Whether the user account is active")
+    is_superuser: bool = Field(..., description="Whether the user has superuser privileges")
+    is_verified: bool = Field(..., description="Whether the user's email is verified")
+    created_at: datetime = Field(..., description="Timestamp when the user was created")
+    updated_at: Optional[datetime] = Field(None, description="Timestamp when the user was last updated")
+    
+    class Config:
+        from_attributes = True
+
+
+class UserCreate(schemas.BaseUserCreate, UserBase):
     """
     Schema for user creation/registration.
     
@@ -74,7 +92,7 @@ class UserCreate(UserBase, schemas.BaseUserCreate):
         return v
 
 
-class UserUpdate(UserBase, schemas.BaseUserUpdate):
+class UserUpdate(schemas.BaseUserUpdate, UserBase):
     """
     Schema for user updates.
     
@@ -84,7 +102,7 @@ class UserUpdate(UserBase, schemas.BaseUserUpdate):
     pass
 
 
-class UserRead(UserBase, schemas.BaseUser[uuid.UUID]):
+class UserRead(schemas.BaseUser[uuid.UUID], UserBase):
     """
     Schema for reading user data.
     
@@ -100,6 +118,10 @@ class UserRead(UserBase, schemas.BaseUser[uuid.UUID]):
     
     class Config:
         from_attributes = True
+
+
+# Note: UserDB is not needed in FastAPI-Users v13+
+# The User model from SQLAlchemyBaseUserTable already includes hashed_password
 
 
 class UserProfile(BaseModel):
