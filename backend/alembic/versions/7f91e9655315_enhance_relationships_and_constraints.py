@@ -21,58 +21,15 @@ def upgrade() -> None:
     Enhance relationships and constraints for better data integrity and performance.
     
     This migration adds:
-    1. Unique constraints for data integrity
-    2. Additional indexes for query performance
-    3. Check constraints for data validation
-    4. Composite indexes for common query patterns
+    1. Additional indexes for query performance
+    2. Composite indexes for common query patterns
+    
+    Note: Unique constraints and check constraints are skipped for SQLite compatibility.
+    They should be enforced at the application level for SQLite.
     """
     
-    # Add unique constraint to prevent duplicate user-role assignments
-    op.create_unique_constraint(
-        'uq_user_roles_user_role_active',
-        'user_roles',
-        ['user_id', 'role_id', 'is_active'],
-        name='uq_user_roles_user_role_active'
-    )
-    
-    # Add unique constraint to prevent duplicate active resumes per user
-    op.create_unique_constraint(
-        'uq_resumes_user_title_active',
-        'resumes',
-        ['user_id', 'title', 'is_active'],
-        name='uq_resumes_user_title_active'
-    )
-    
-    # Add check constraints for data validation
-    op.create_check_constraint(
-        'ck_scores_overall_score_range',
-        'scores',
-        'overall_score >= 0 AND overall_score <= 100'
-    )
-    
-    op.create_check_constraint(
-        'ck_scores_skill_score_range',
-        'scores',
-        'skill_score IS NULL OR (skill_score >= 0 AND skill_score <= 100)'
-    )
-    
-    op.create_check_constraint(
-        'ck_scores_experience_score_range',
-        'scores',
-        'experience_score IS NULL OR (experience_score >= 0 AND experience_score <= 100)'
-    )
-    
-    op.create_check_constraint(
-        'ck_scores_education_score_range',
-        'scores',
-        'education_score IS NULL OR (education_score >= 0 AND education_score <= 100)'
-    )
-    
-    op.create_check_constraint(
-        'ck_resumes_experience_years_range',
-        'resumes',
-        'experience_years IS NULL OR (experience_years >= 0 AND experience_years <= 100)'
-    )
+    # Skip constraints for SQLite - they need to be defined at table creation time
+    # or enforced at the application level
     
     # Add composite indexes for common query patterns
     op.create_index(
@@ -141,13 +98,4 @@ def downgrade() -> None:
     op.drop_index('ix_scores_resume_analysis_type', table_name='scores')
     op.drop_index('ix_scores_user_analysis_type', table_name='scores')
     
-    # Drop check constraints
-    op.drop_constraint('ck_resumes_experience_years_range', 'resumes', type_='check')
-    op.drop_constraint('ck_scores_education_score_range', 'scores', type_='check')
-    op.drop_constraint('ck_scores_experience_score_range', 'scores', type_='check')
-    op.drop_constraint('ck_scores_skill_score_range', 'scores', type_='check')
-    op.drop_constraint('ck_scores_overall_score_range', 'scores', type_='check')
-    
-    # Drop unique constraints
-    op.drop_constraint('uq_resumes_user_title_active', 'resumes', type_='unique')
-    op.drop_constraint('uq_user_roles_user_role_active', 'user_roles', type_='unique')
+    # Note: Constraints were skipped for SQLite compatibility
