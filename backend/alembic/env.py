@@ -39,6 +39,11 @@ def get_url():
     # For testing, prefer the config file URL
     env_url = os.getenv("DATABASE_URL")
     if env_url:
+        # Convert async URL to sync for alembic
+        if env_url.startswith("sqlite+aiosqlite"):
+            return env_url.replace("sqlite+aiosqlite", "sqlite")
+        elif env_url.startswith("postgresql+asyncpg"):
+            return env_url.replace("postgresql+asyncpg", "postgresql")
         return env_url
     return config.get_main_option("sqlalchemy.url")
 
@@ -92,9 +97,8 @@ def run_migrations_online() -> None:
             context.run_migrations()
 
 
-# Only run migrations when actually executing Alembic commands
+# Run migrations
 if context.is_offline_mode():
     run_migrations_offline()
-elif context.get_x_argument(as_dictionary=True).get('autogenerate', False):
-    # Only run online migrations when autogenerating
+else:
     run_migrations_online()

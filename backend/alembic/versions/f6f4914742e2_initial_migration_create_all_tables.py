@@ -20,8 +20,8 @@ def upgrade() -> None:
     # Create users table
     op.create_table(
         'users',
-        sa.Column('id', sa.dialects.postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column('email', sa.String(length=320), nullable=False, unique=True, index=True),
+        sa.Column('id', sa.String(36), primary_key=True),
+        sa.Column('email', sa.String(length=320), nullable=False, unique=True),
         sa.Column('hashed_password', sa.String(length=1024), nullable=False),
         sa.Column('is_active', sa.Boolean(), nullable=False, server_default=sa.text('true')),
         sa.Column('is_superuser', sa.Boolean(), nullable=False, server_default=sa.text('false')),
@@ -42,7 +42,7 @@ def upgrade() -> None:
     op.create_table(
         'roles',
         sa.Column('id', sa.Integer(), primary_key=True),
-        sa.Column('name', sa.String(length=50), nullable=False, unique=True, index=True),
+        sa.Column('name', sa.String(length=50), nullable=False, unique=True),
         sa.Column('description', sa.Text(), nullable=True),
         sa.Column('permissions', sa.Text(), nullable=True),
         sa.Column('is_active', sa.Boolean(), server_default=sa.text('true'), nullable=False),
@@ -54,10 +54,10 @@ def upgrade() -> None:
     op.create_table(
         'user_roles',
         sa.Column('id', sa.Integer(), primary_key=True),
-        sa.Column('user_id', sa.dialects.postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('user_id', sa.String(36), nullable=False),
         sa.Column('role_id', sa.Integer(), nullable=False),
         sa.Column('assigned_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column('assigned_by', sa.dialects.postgresql.UUID(as_uuid=True), nullable=True),
+        sa.Column('assigned_by', sa.String(36), nullable=True),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['assigned_by'], ['users.id']),
@@ -67,7 +67,7 @@ def upgrade() -> None:
     op.create_table(
         'resumes',
         sa.Column('id', sa.Integer(), primary_key=True),
-        sa.Column('user_id', sa.dialects.postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('user_id', sa.String(36), nullable=False),
         sa.Column('title', sa.String(length=200), nullable=False),
         sa.Column('file_path', sa.String(length=500), nullable=True),
         sa.Column('file_name', sa.String(length=255), nullable=True),
@@ -94,7 +94,7 @@ def upgrade() -> None:
     op.create_table(
         'scores',
         sa.Column('id', sa.Integer(), primary_key=True),
-        sa.Column('user_id', sa.dialects.postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('user_id', sa.String(36), nullable=False),
         sa.Column('resume_id', sa.Integer(), nullable=False),
         sa.Column('analysis_type', sa.String(length=100), nullable=False),
         sa.Column('job_title', sa.String(length=200), nullable=True),
