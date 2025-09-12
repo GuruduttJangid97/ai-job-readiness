@@ -17,115 +17,132 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Create users table
-    op.create_table(
-        'users',
-        sa.Column('id', sa.String(36), primary_key=True),
-        sa.Column('email', sa.String(length=320), nullable=False, unique=True),
-        sa.Column('hashed_password', sa.String(length=1024), nullable=False),
-        sa.Column('is_active', sa.Boolean(), nullable=False, server_default=sa.text('true')),
-        sa.Column('is_superuser', sa.Boolean(), nullable=False, server_default=sa.text('false')),
-        sa.Column('is_verified', sa.Boolean(), nullable=False, server_default=sa.text('false')),
-        sa.Column('first_name', sa.String(length=100), nullable=True),
-        sa.Column('last_name', sa.String(length=100), nullable=True),
-        sa.Column('phone', sa.String(length=20), nullable=True),
-        sa.Column('bio', sa.Text(), nullable=True),
-        sa.Column('profile_picture_url', sa.String(length=500), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
-    )
-    op.create_index('ix_users_email', 'users', ['email'])
-    op.create_index('ix_users_created_at', 'users', ['created_at'])
-    op.create_index('ix_users_is_active', 'users', ['is_active'])
-
-    # Create roles table
-    op.create_table(
-        'roles',
-        sa.Column('id', sa.Integer(), primary_key=True),
-        sa.Column('name', sa.String(length=50), nullable=False, unique=True),
-        sa.Column('description', sa.Text(), nullable=True),
-        sa.Column('permissions', sa.Text(), nullable=True),
-        sa.Column('is_active', sa.Boolean(), server_default=sa.text('true'), nullable=False),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
-    )
-
-    # Create user_roles association table
-    op.create_table(
-        'user_roles',
-        sa.Column('id', sa.Integer(), primary_key=True),
-        sa.Column('user_id', sa.String(36), nullable=False),
-        sa.Column('role_id', sa.Integer(), nullable=False),
-        sa.Column('assigned_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column('assigned_by', sa.String(36), nullable=True),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['assigned_by'], ['users.id']),
-    )
-
-    # Create resumes table
-    op.create_table(
-        'resumes',
-        sa.Column('id', sa.Integer(), primary_key=True),
-        sa.Column('user_id', sa.String(36), nullable=False),
-        sa.Column('title', sa.String(length=200), nullable=False),
-        sa.Column('file_path', sa.String(length=500), nullable=True),
-        sa.Column('file_name', sa.String(length=255), nullable=True),
-        sa.Column('file_size', sa.Integer(), nullable=True),
-        sa.Column('file_type', sa.String(length=50), nullable=True),
-        sa.Column('summary', sa.Text(), nullable=True),
-        sa.Column('experience_years', sa.Float(), nullable=True),
-        sa.Column('education_level', sa.String(length=100), nullable=True),
-        sa.Column('skills', sa.Text(), nullable=True),
-        sa.Column('languages', sa.Text(), nullable=True),
-        sa.Column('is_active', sa.Boolean(), server_default=sa.text('true'), nullable=False),
-        sa.Column('is_public', sa.Boolean(), server_default=sa.text('false'), nullable=False),
-        sa.Column('last_analyzed', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
-    )
-    op.create_index('ix_resumes_user_id', 'resumes', ['user_id'])
-    op.create_index('ix_resumes_created_at', 'resumes', ['created_at'])
-    op.create_index('ix_resumes_is_active', 'resumes', ['is_active'])
-    op.create_index('ix_resumes_file_type', 'resumes', ['file_type'])
-
-    # Create scores table
-    op.create_table(
-        'scores',
-        sa.Column('id', sa.Integer(), primary_key=True),
-        sa.Column('user_id', sa.String(36), nullable=False),
-        sa.Column('resume_id', sa.Integer(), nullable=False),
-        sa.Column('analysis_type', sa.String(length=100), nullable=False),
-        sa.Column('job_title', sa.String(length=200), nullable=True),
-        sa.Column('company', sa.String(length=200), nullable=True),
-        sa.Column('overall_score', sa.Float(), nullable=False),
-        sa.Column('skill_score', sa.Float(), nullable=True),
-        sa.Column('experience_score', sa.Float(), nullable=True),
-        sa.Column('education_score', sa.Float(), nullable=True),
-        sa.Column('skill_matches', sa.JSON(), nullable=True),
-        sa.Column('skill_gaps', sa.JSON(), nullable=True),
-        sa.Column('recommendations', sa.Text(), nullable=True),
-        sa.Column('analysis_details', sa.JSON(), nullable=True),
-        sa.Column('is_active', sa.Boolean(), server_default=sa.text('true'), nullable=False),
-        sa.Column('analysis_date', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['resume_id'], ['resumes.id'], ondelete='CASCADE'),
-    )
+    # Create users table (with IF NOT EXISTS check)
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id VARCHAR(36) NOT NULL,
+            email VARCHAR(320) NOT NULL,
+            hashed_password VARCHAR(1024) NOT NULL,
+            is_active BOOLEAN DEFAULT true NOT NULL,
+            is_superuser BOOLEAN DEFAULT false NOT NULL,
+            is_verified BOOLEAN DEFAULT false NOT NULL,
+            first_name VARCHAR(100),
+            last_name VARCHAR(100),
+            phone VARCHAR(20),
+            bio TEXT,
+            profile_picture_url VARCHAR(500),
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+            updated_at TIMESTAMP WITH TIME ZONE,
+            PRIMARY KEY (id),
+            UNIQUE (email)
+        )
+    """)
+    
+    # Create roles table (with IF NOT EXISTS check)
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS roles (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(50) NOT NULL UNIQUE,
+            description TEXT,
+            permissions JSONB DEFAULT '[]'::jsonb,
+            is_active BOOLEAN DEFAULT true NOT NULL,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+            updated_at TIMESTAMP WITH TIME ZONE
+        )
+    """)
+    
+    # Create user_roles table (with IF NOT EXISTS check)
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS user_roles (
+            id SERIAL PRIMARY KEY,
+            user_id VARCHAR(36) NOT NULL,
+            role_id INTEGER NOT NULL,
+            assigned_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+            assigned_by VARCHAR(36),
+            is_active BOOLEAN DEFAULT true NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+            UNIQUE (user_id, role_id)
+        )
+    """)
+    
+    # Create resumes table (with IF NOT EXISTS check)
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS resumes (
+            id SERIAL PRIMARY KEY,
+            user_id VARCHAR(36) NOT NULL,
+            title VARCHAR(200) NOT NULL,
+            file_path VARCHAR(500),
+            file_name VARCHAR(255),
+            file_size BIGINT,
+            file_type VARCHAR(50),
+            summary TEXT,
+            experience_years DECIMAL(3,1),
+            education_level VARCHAR(100),
+            skills JSONB DEFAULT '[]'::jsonb,
+            languages JSONB DEFAULT '[]'::jsonb,
+            is_active BOOLEAN DEFAULT true NOT NULL,
+            is_public BOOLEAN DEFAULT true NOT NULL,
+            last_analyzed TIMESTAMP WITH TIME ZONE,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+            updated_at TIMESTAMP WITH TIME ZONE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    """)
+    
+    # Create scores table (with IF NOT EXISTS check)
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS scores (
+            id SERIAL PRIMARY KEY,
+            user_id VARCHAR(36) NOT NULL,
+            resume_id INTEGER NOT NULL,
+            analysis_type VARCHAR(50) NOT NULL,
+            job_title VARCHAR(200),
+            company VARCHAR(200),
+            overall_score DECIMAL(5,2) NOT NULL,
+            skill_score DECIMAL(5,2),
+            experience_score DECIMAL(5,2),
+            education_score DECIMAL(5,2),
+            skill_matches JSONB DEFAULT '[]'::jsonb,
+            skill_gaps JSONB DEFAULT '[]'::jsonb,
+            recommendations TEXT,
+            analysis_details JSONB DEFAULT '{}'::jsonb,
+            is_active BOOLEAN DEFAULT true NOT NULL,
+            analysis_date TIMESTAMP WITH TIME ZONE,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+            updated_at TIMESTAMP WITH TIME ZONE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (resume_id) REFERENCES resumes(id) ON DELETE CASCADE
+        )
+    """)
+    
+    # Create indexes if they don't exist
+    op.execute("CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles(user_id)")
+    op.execute("CREATE INDEX IF NOT EXISTS idx_user_roles_role_id ON user_roles(role_id)")
+    op.execute("CREATE INDEX IF NOT EXISTS idx_resumes_user_id ON resumes(user_id)")
+    op.execute("CREATE INDEX IF NOT EXISTS idx_scores_user_id ON scores(user_id)")
+    op.execute("CREATE INDEX IF NOT EXISTS idx_scores_resume_id ON scores(resume_id)")
+    op.execute("CREATE INDEX IF NOT EXISTS idx_scores_analysis_type ON scores(analysis_type)")
+    op.execute("CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)")
+    op.execute("CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at)")
+    op.execute("CREATE INDEX IF NOT EXISTS idx_users_is_active ON users(is_active)")
 
 
 def downgrade() -> None:
-    op.drop_table('scores')
-    op.drop_index('ix_resumes_file_type', table_name='resumes')
-    op.drop_index('ix_resumes_is_active', table_name='resumes')
-    op.drop_index('ix_resumes_created_at', table_name='resumes')
-    op.drop_index('ix_resumes_user_id', table_name='resumes')
-    op.drop_table('resumes')
-    op.drop_table('user_roles')
-    op.drop_table('roles')
-    op.drop_index('ix_users_is_active', table_name='users')
-    op.drop_index('ix_users_created_at', table_name='users')
-    op.drop_index('ix_users_email', table_name='users')
-    op.drop_table('users')
+    # Drop indexes
+    op.execute("DROP INDEX IF EXISTS idx_scores_analysis_type")
+    op.execute("DROP INDEX IF EXISTS idx_scores_resume_id")
+    op.execute("DROP INDEX IF EXISTS idx_scores_user_id")
+    op.execute("DROP INDEX IF EXISTS idx_resumes_user_id")
+    op.execute("DROP INDEX IF EXISTS idx_user_roles_role_id")
+    op.execute("DROP INDEX IF EXISTS idx_user_roles_user_id")
+    op.execute("DROP INDEX IF EXISTS idx_users_email")
+    op.execute("DROP INDEX IF EXISTS idx_users_created_at")
+    op.execute("DROP INDEX IF EXISTS idx_users_is_active")
+    
+    # Drop tables in reverse order
+    op.execute("DROP TABLE IF EXISTS scores CASCADE")
+    op.execute("DROP TABLE IF EXISTS resumes CASCADE")
+    op.execute("DROP TABLE IF EXISTS user_roles CASCADE")
+    op.execute("DROP TABLE IF EXISTS roles CASCADE")
+    op.execute("DROP TABLE IF EXISTS users CASCADE")
