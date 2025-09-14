@@ -21,6 +21,11 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
+// Import utilities
+import { useAuth } from './utils/hooks';
+import { formatName, formatDate } from './utils/formatting';
+import { SUCCESS_MESSAGES, ERROR_MESSAGES } from './utils/constants';
+
 // Import components (to be created)
 // import Header from './components/Header';
 // import Navigation from './components/Navigation';
@@ -37,65 +42,25 @@ import './App.css';
  * job readiness and improve their career prospects.
  */
 function App() {
+  // Use custom authentication hook
+  const { user, isAuthenticated, loading: authLoading, login, logout } = useAuth();
+  
   // Application state management
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isLoading, setIsLoading] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   /**
-   * Initialize application on component mount
-   * Check for existing authentication and load user data
+   * Handle user logout with cleanup
    */
-  useEffect(() => {
-    initializeApp();
-  }, []);
-
-  /**
-   * Initialize the application
-   * Check for stored authentication tokens and user data
-   */
-  const initializeApp = async () => {
+  const handleLogout = async () => {
     try {
-      setIsLoading(true);
-      
-      // Check for stored authentication token
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        // TODO: Validate token with backend and load user data
-        // const userData = await validateToken(token);
-        // setCurrentUser(userData);
-        // setIsAuthenticated(true);
-      }
+      await logout();
+      setActiveTab('dashboard');
+      addNotification(SUCCESS_MESSAGES.LOGOUT, 'success');
     } catch (error) {
-      console.error('Failed to initialize app:', error);
-      // Clear invalid token
-      localStorage.removeItem('auth_token');
-    } finally {
-      setIsLoading(false);
+      console.error('Logout error:', error);
+      addNotification(ERROR_MESSAGES.GENERIC, 'error');
     }
-  };
-
-  /**
-   * Handle user authentication
-   * @param {Object} userData - User data from authentication
-   * @param {string} token - JWT authentication token
-   */
-  const handleAuthentication = (userData, token) => {
-    setCurrentUser(userData);
-    setIsAuthenticated(true);
-    localStorage.setItem('auth_token', token);
-  };
-
-  /**
-   * Handle user logout
-   * Clear authentication state and stored data
-   */
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('auth_token');
-    setActiveTab('dashboard');
   };
 
   /**
@@ -106,8 +71,46 @@ function App() {
     setActiveTab(tabName);
   };
 
-  // Show loading spinner during initialization
-  if (isLoading) {
+  /**
+   * Add notification to the notification list
+   * @param {string} message - Notification message
+   * @param {string} type - Notification type (success, error, info, warning)
+   */
+  const addNotification = (message, type = 'info') => {
+    const notification = {
+      id: Date.now(),
+      message,
+      type,
+      timestamp: new Date()
+    };
+    
+    setNotifications(prev => [...prev, notification]);
+    
+    // Auto-remove notification after 5 seconds
+    setTimeout(() => {
+      removeNotification(notification.id);
+    }, 5000);
+  };
+
+  /**
+   * Remove notification from the notification list
+   * @param {number} id - Notification ID
+   */
+  const removeNotification = (id) => {
+    setNotifications(prev => prev.filter(notification => notification.id !== id));
+  };
+
+  /**
+   * Get user display name
+   * @returns {string} - User display name
+   */
+  const getUserDisplayName = () => {
+    if (!user) return 'User';
+    return formatName(user.first_name, user.last_name, 'full') || user.email || 'User';
+  };
+
+  // Show loading spinner during authentication check
+  if (authLoading) {
     return (
       <div className="App">
         <div className="loading-container">
@@ -161,7 +164,7 @@ function App() {
             {isAuthenticated ? (
               <div className="user-menu">
                 <span className="user-greeting">
-                  Welcome, {currentUser?.first_name || 'User'}!
+                  Welcome, {getUserDisplayName()}!
                 </span>
                 <button className="logout-button" onClick={handleLogout}>
                   Logout
@@ -213,7 +216,7 @@ function App() {
           // Authenticated user dashboard
           <div className="dashboard">
             <div className="dashboard-header">
-              <h2>Welcome back, {currentUser?.first_name}!</h2>
+              <h2>Welcome back, {getUserDisplayName()}!</h2>
               <p>Here's your job readiness overview</p>
             </div>
             
@@ -260,6 +263,22 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Notification System */}
+      {notifications.length > 0 && (
+        <div className="notification-container">
+          {notifications.map(notification => (
+            <div 
+              key={notification.id} 
+              className={`notification notification-${notification.type}`}
+              onClick={() => removeNotification(notification.id)}
+            >
+              <span className="notification-message">{notification.message}</span>
+              <button className="notification-close">&times;</button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
